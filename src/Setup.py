@@ -359,8 +359,65 @@ class Módulo_estoque:
                 master=Tela_scr_cadastrar
             )
 
-            nfe_txt.place(x=415,  y=208, anchor=tk.SW)
+            nfe_txt.place(x=415, y=208, anchor=tk.SW)
             nfe.place(x=417, y=228, relwidth=0.255, anchor=tk.SW)
+            ###
+
+            # Data validade
+            data_txt = tk.Label(
+                master=Tela_scr_cadastrar,
+                text="Validade (dd-mm-yyyy)"
+            )
+
+            data = tk.Entry(
+                master=Tela_scr_cadastrar
+            )
+
+            data_txt.place(x=28, y=265, anchor=tk.SW)
+            data.place(x=30, y=285, relwidth=0.255, anchor=tk.SW)
+            ###
+
+            # Quantidade
+            qtde_txt = tk.Label(
+                master=Tela_scr_cadastrar,
+                text="Quantidade*"
+            )
+
+            qtde = ttk.Entry(
+                master=Tela_scr_cadastrar
+            )
+
+            qtde_txt.place(x=222, y=265, anchor=tk.SW)
+            qtde.place(x=224, y=285, relwidth=0.255, anchor=tk.SW)
+            ###
+
+            # Código de barras
+            cod_txt = tk.Label(
+                master=Tela_scr_cadastrar,
+                text="Código de barras"
+            )
+
+            cod = tk.Entry(
+                master=Tela_scr_cadastrar
+            )
+
+            cod_txt.place(x=415, y=265, anchor=tk.SW)
+            cod.place(x=417, y=285, relwidth=0.255, anchor=tk.SW)
+            ###
+
+            # Observações
+            obs_txt = tk.Label(
+                master=Tela_scr_cadastrar,
+                text="Observações"
+            )
+
+            obs = tk.Text(
+                master=Tela_scr_cadastrar,
+                height=6
+            )
+
+            obs_txt.place(x=28, y=322, anchor=tk.SW)
+            obs.place(x=30, y=324, relwidth=0.9, anchor=tk.NW)
             ###
 
             Tela_scr_cadastrar.mainloop()         
