@@ -1,0 +1,9 @@
+# Ignorar venv
+.venv
+
+# Ignorar arquivos teste
+teste.py
+teste2.py
+
+# Ignorar os logs
+log
