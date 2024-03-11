@@ -139,12 +139,7 @@ class Database:
             conn = sqlite3.connect(CONSTANTS.CONN_DB)
             cursor = conn.cursor()
 
-            # Selecionar os nomes das colunas da tabela informada
-            cursor.execute(f"SELECT name FROM pragma_table_info('{table}')")
-            data = cursor.fetchall()[1:]
-
-            resultado = ', '.join(elemento[0] for elemento in data)
-            stringFields = resultado.replace("LastUpdate, ", "")
+            listArgs.keys()
 
             lista = list(listArgs.items())
 
