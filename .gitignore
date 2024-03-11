@@ -7,3 +7,6 @@ teste2.py
 
 # Ignorar os logs
 log
+
+# Ignorar os arquivos de Query
+querys.py

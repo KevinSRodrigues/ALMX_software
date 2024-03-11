@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image
 from customtkinter import CTkImage, CTkButton
+import threading
 import sys
 import os
 import sqlite3
@@ -63,7 +64,55 @@ class Api_sefaz:
             messagebox.showerror("Falha inesperada", "Houve uma falha inesperada, entre em contato com o suporte.")
             logger.error("Falha com a api sefaz", exc_info=True)
 
-class Database_consult_default:
+class Database:
+
+    def Verify_preenchimento(self, table, listaArgs_obr, listaArgs_none, widgetText, widgetLabel, tela):
+
+        tabela = table
+        listArgs_dict = {}
+
+        for widget, value in listaArgs_obr.items():
+
+            res_value = value.get()
+            if res_value == "":
+                
+                messagebox.showwarning("Campo vazio", "Preencha os campos obrigatórios.")
+                tela.lift()
+            
+            else:
+
+                listArgs_dict[widget] = res_value
+
+                for widget, value in listaArgs_none.items():
+
+                    res_value = value.get()
+                    if res_value == "":
+
+                        res_value = None
+                        listArgs_dict[widget] = res_value
+
+                    else:
+                        listArgs_dict[widget] = res_value
+
+                for widget, value in widgetText.items():
+
+                    if value.get(1.0, index2=tk.END) == "":
+                        listArgs_dict[widget] = None
+
+                    else:
+                        listArgs_dict[widget] = value.get(1.0, index2=tk.END)
+
+                for widget, value in widgetLabel.items():
+
+                    if value.cget("text") == "":
+                        
+                        messagebox.showwarning("Campo vazio", "Preencha os campos obrigatórios.")
+                        tela.lift()
+
+                    else:
+                        listArgs_dict[widget] = value.cget("text")
+
+        # Database.Inserção_default(self, table=tabela, listArgs=listArgs_dict)
 
     def Consulta_default(self, arg):
 
@@ -83,6 +132,30 @@ class Database_consult_default:
 
         return data
 
+    def Inserção_default(self, table, listArgs):
+
+        try:
+
+            conn = sqlite3.connect(CONSTANTS.CONN_DB)
+            cursor = conn.cursor()
+
+            # Selecionar os nomes das colunas da tabela informada
+            cursor.execute(f"SELECT name FROM pragma_table_info('{table}')")
+            data = cursor.fetchall()[1:]
+
+            resultado = ', '.join(elemento[0] for elemento in data)
+            stringFields = resultado.replace("LastUpdate, ", "")
+
+            lista = list(listArgs.items())
+
+            cursor.execute(f"""INSERT INTO {table} ({stringFields}) VALUES ()""")
+            conn.commit()
+            messagebox.showinfo("Sucesso", f"{listArgs["ProductName"]} cadastrado com sucesso!")
+
+        except:
+            messagebox.showerror("Falha inesperada", "Houve uma falha inesperada, entre em contato com o suporte.")
+            logger.error("Falha com a inserção default", exc_info=True)
+
 class Módulo_estoque:
 
     class Visao_Geral:
@@ -94,7 +167,7 @@ class Módulo_estoque:
 
             try:
 
-                headers = ["ID", "Material", "Descrição", "Medida", "Categoria", "Quantidade", "Fornecedor"]
+                headers = ["ID", "ProductName", "Descrição", "Medida", "Category", "Quantidade", "Fornecedor"]
                 treeview = ttk.Treeview(
                     master=tela,
                     columns=headers,
@@ -172,16 +245,16 @@ class Módulo_estoque:
                                         e.ProductID AS ID,
                                         e.ProductName AS Name,
                                         e.ProductDescription AS Description,
-                                        un.UnMedidaName AS UnMedidaName,
+                                        un.UnitOfMeasureName AS UnitOfMeasureName,
                                         c.CategoryName AS CategoryName,
                                         e.StockQuantity,
                                         e.SupplierName
                                     FROM 
                                         Estoque e
                                     JOIN 
-                                        Categorias c ON e.Category = c.CategoryID
+                                        Category c ON e.Category = c.CategoryID
                                     JOIN 
-                                        UnMedida un ON e.UnitOfMeasure = un.UnMedidaID
+                                        UnitOfMeasure un ON e.UnitOfMeasure = un.UnitOfMeasureID
                             """)
                 data = cursor.fetchall()
 
@@ -210,16 +283,16 @@ class Módulo_estoque:
                                             e.ProductID AS ID,
                                             e.ProductName AS Name,
                                             e.ProductDescription AS Description,
-                                            un.UnMedidaName AS UnMedidaName,
+                                            un.UnitOfMeasureName AS UnitOfMeasureName,
                                             c.CategoryName AS CategoryName,
                                             e.StockQuantity,
                                             e.SupplierName
                                         FROM 
                                             Estoque e
                                         JOIN 
-                                            Categorias c ON e.Category = c.CategoryID
+                                            Categorys c ON e.Category = c.CategoryID
                                         JOIN 
-                                            UnMedida un ON e.UnitOfMeasure = un.UnMedidaID
+                                            UnitOfMeasure un ON e.UnitOfMeasure = un.UnitOfMeasureID
                                         WHERE e.ProductName LIKE ?
                                 """, (f"{key}%",))
                     data = cursor.fetchall()
@@ -242,182 +315,213 @@ class Módulo_estoque:
         def Scr_cadastrar(self):
 
             Tela_scr_cadastrar = tk.Tk()
-            Tela_scr_cadastrar.title(f"{NAME_APP} - Cadastrar material")
+            Tela_scr_cadastrar.title(f"{NAME_APP} - Cadastrar ProductName")
             Tela_scr_cadastrar.resizable(False, False)
-            Tela_scr_cadastrar.geometry(f"600x462+{(self.width_screen-600)//2}+{(self.height_screen-(462+80))//2}") 
+            Tela_scr_cadastrar.geometry(f"600x500+{(self.width_screen-600)//2}+{(self.height_screen-(517+80))//2}") 
 
-            # Material
-            material_txt = tk.Label(
+            # ProductName
+            ProductName_txt = tk.Label(
                 master=Tela_scr_cadastrar,
-                text="Material*"
+                text="ProductName*"
             )
 
-            material = tk.Entry(
+            ProductName = tk.Entry(
                 master=Tela_scr_cadastrar
             )
 
-            material_txt.place(x=28,  y=37, anchor=tk.SW)
-            material.place(x=30, y=57, relwidth=0.9, anchor=tk.SW)
+            ProductName_txt.place(x=28,  y=37, anchor=tk.SW)
+            ProductName.place(x=30, y=57, relwidth=0.9, anchor=tk.SW)
             ###
 
             # Unidade medida
-            un_medida_txt = tk.Label(
+            UnitOfMeasure_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="Unidade de medida*"
             )
 
-            un_medida = ttk.Combobox(
+            UnitOfMeasure = ttk.Combobox(
                 master=Tela_scr_cadastrar,
-                values=Database_consult_default.Consulta_default(self, arg="UnMedida")
+                values=Database.Consulta_default(self, arg="UnitOfMeasure")
             )
 
-            un_medida_txt.place(x=28, y=94, anchor=tk.SW)
-            un_medida.place(x=30, y=114, relwidth=0.434, anchor=tk.SW)
+            UnitOfMeasure_txt.place(x=28, y=94, anchor=tk.SW)
+            UnitOfMeasure.place(x=30, y=114, relwidth=0.434, anchor=tk.SW)
             ###
 
-            ### Categoria
-            categoria_txt = tk.Label(
+            ### Category
+            Category_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="Catergoria*"
             )
 
-            categoria = ttk.Combobox(
+            Category = ttk.Combobox(
                 master=Tela_scr_cadastrar,
-                values=Database_consult_default.Consulta_default(self, arg="Category")
+                values=Database.Consulta_default(self, arg="Category")
             )
 
-            categoria_txt.place(x=310, y=94, anchor=tk.SW)
-            categoria.place(x=310, y=114, relwidth=0.434, anchor=tk.SW)
+            Category_txt.place(x=310, y=94, anchor=tk.SW)
+            Category.place(x=310, y=114, relwidth=0.434, anchor=tk.SW)
             ###
 
             # Razão Social Fornecedor
-            raz_social_txt = tk.Label(
+            SupplierName_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="Razão social fornecedor"
             )
 
-            raz_social = tk.Label(
+            SupplierName = tk.Label(
                 master=Tela_scr_cadastrar,
                 text=""
             )
 
-            raz_social_txt.place(x=310, y=151, anchor=tk.SW)
-            raz_social.place(x=310, y=171, relwidth=0.434, anchor=tk.SW)
+            SupplierName_txt.place(x=310, y=151, anchor=tk.SW)
+            SupplierName.place(x=310, y=171, relwidth=0.434, anchor=tk.SW)
             ###
 
             # CNPJ Fornecedor
-            cnpj_txt = tk.Label(
+            Cnpj_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="CNPJ Fornecedor*"
             )
 
-            cnpj = tk.Entry(
+            Cnpj = tk.Entry(
                 master=Tela_scr_cadastrar
             )
 
-            cnpj_txt.place(x=28, y=151, anchor=tk.SW)
-            cnpj.place(x=30, y=171, relwidth=0.434, anchor=tk.SW)
-            cnpj.bind("<FocusOut>", lambda event=None: Api_sefaz.Consulta_cnpj(self, widget=cnpj, label=raz_social, tela=Tela_scr_cadastrar))
+            Cnpj_txt.place(x=28, y=151, anchor=tk.SW)
+            Cnpj.place(x=30, y=171, relwidth=0.434, anchor=tk.SW)
+            Cnpj.bind("<FocusOut>", lambda event=None: Api_sefaz.Consulta_cnpj(self, widget=Cnpj, label=SupplierName, tela=Tela_scr_cadastrar))
             ###
 
             # Obra
-            obra_txt = tk.Label(
+            Obra_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="Obra*"
             )
 
-            obra = ttk.Combobox(
+            Obra = ttk.Combobox(
                 master=Tela_scr_cadastrar,
-                values=Database_consult_default.Consulta_default(self, arg="Obra")
+                values=Database.Consulta_default(self, arg="Obra")
             )
 
-            obra_txt.place(x=28, y=208, anchor=tk.SW)
-            obra.place(x=30, y=228, relwidth=0.255, anchor=tk.SW)
+            Obra_txt.place(x=28, y=208, anchor=tk.SW)
+            Obra.place(x=30, y=228, relwidth=0.255, anchor=tk.SW)
             ###
 
             # N° ordem de compra
-            ordem_txt = tk.Label(
+            OrderNumber_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="N° ordem de compra*"
             )
 
-            ordem = tk.Entry(
+            OrderNumber = tk.Entry(
                 master=Tela_scr_cadastrar
             )
 
-            ordem_txt.place(x=222,  y=208, anchor=tk.SW)
-            ordem.place(x=224, y=228, relwidth=0.255, anchor=tk.SW)
+            OrderNumber_txt.place(x=222,  y=208, anchor=tk.SW)
+            OrderNumber.place(x=224, y=228, relwidth=0.255, anchor=tk.SW)
             ###
 
             # N° NF-e
-            nfe_txt = tk.Label(
+            NotaFiscal_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="N° NF-e*"
             )
 
-            nfe = tk.Entry(
+            NotaFiscal = tk.Entry(
                 master=Tela_scr_cadastrar
             )
 
-            nfe_txt.place(x=415, y=208, anchor=tk.SW)
-            nfe.place(x=417, y=228, relwidth=0.255, anchor=tk.SW)
+            NotaFiscal_txt.place(x=415, y=208, anchor=tk.SW)
+            NotaFiscal.place(x=417, y=228, relwidth=0.255, anchor=tk.SW)
             ###
 
             # Data validade
-            data_txt = tk.Label(
+            ExpirationDate_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="Validade (dd-mm-yyyy)"
             )
 
-            data = tk.Entry(
+            ExpirationDate = tk.Entry(
                 master=Tela_scr_cadastrar
             )
 
-            data_txt.place(x=28, y=265, anchor=tk.SW)
-            data.place(x=30, y=285, relwidth=0.255, anchor=tk.SW)
+            ExpirationDate_txt.place(x=28, y=265, anchor=tk.SW)
+            ExpirationDate.place(x=30, y=285, relwidth=0.255, anchor=tk.SW)
             ###
 
             # Quantidade
-            qtde_txt = tk.Label(
+            StockQuantity_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="Quantidade*"
             )
 
-            qtde = ttk.Entry(
+            StockQuantity = ttk.Entry(
                 master=Tela_scr_cadastrar
             )
 
-            qtde_txt.place(x=222, y=265, anchor=tk.SW)
-            qtde.place(x=224, y=285, relwidth=0.255, anchor=tk.SW)
+            StockQuantity_txt.place(x=222, y=265, anchor=tk.SW)
+            StockQuantity.place(x=224, y=285, relwidth=0.255, anchor=tk.SW)
             ###
 
             # Código de barras
-            cod_txt = tk.Label(
+            Barcode_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="Código de barras"
             )
 
-            cod = tk.Entry(
+            Barcode = tk.Entry(
                 master=Tela_scr_cadastrar
             )
 
-            cod_txt.place(x=415, y=265, anchor=tk.SW)
-            cod.place(x=417, y=285, relwidth=0.255, anchor=tk.SW)
+            Barcode_txt.place(x=415, y=265, anchor=tk.SW)
+            Barcode.place(x=417, y=285, relwidth=0.255, anchor=tk.SW)
             ###
 
             # Observações
-            obs_txt = tk.Label(
+            ProductDescription_txt = tk.Label(
                 master=Tela_scr_cadastrar,
                 text="Observações"
             )
 
-            obs = tk.Text(
+            ProductDescription = tk.Text(
                 master=Tela_scr_cadastrar,
                 height=6
             )
 
-            obs_txt.place(x=28, y=322, anchor=tk.SW)
-            obs.place(x=30, y=324, relwidth=0.9, anchor=tk.NW)
+            ProductDescription_txt.place(x=28, y=322, anchor=tk.SW)
+            ProductDescription.place(x=30, y=324, relwidth=0.9, anchor=tk.NW)
+            ###
+
+            # Separator
+            Separator = ttk.Separator(
+                master=Tela_scr_cadastrar,
+                orient="horizontal"
+            )
+
+            Separator.place(relx=0.5, rely=0.9, relwidth=1, anchor=tk.N)
+            ###
+            
+            listaArgs_obr = {"ProductName": ProductName,
+                             "UnitOfMeasure": UnitOfMeasure,
+                             "Category": Category,
+                             "Cnpj": Cnpj,
+                             "Obra": Obra,
+                             "StockQuantity": StockQuantity}
+            
+            listaArgs_none = {"OrderNumber": OrderNumber,
+                              "NotaFiscal": NotaFiscal,
+                              "ExpirationDate": ExpirationDate,
+                              "Barcode": Barcode}
+
+            # Botão gravar
+            btnGravar = tk.Button(
+                master=Tela_scr_cadastrar,
+                text="Gravar",
+                command= lambda event=None: Database.Verify_preenchimento(self, table="Estoque", listaArgs_obr=listaArgs_obr, listaArgs_none=listaArgs_none, widgetText={"ProductDescription": ProductDescription}, widgetLabel={"SupplierName": SupplierName}, tela=Tela_scr_cadastrar)
+            )
+
+            btnGravar.place(relx=0.95, rely=0.975, anchor=tk.SE)
             ###
 
             Tela_scr_cadastrar.mainloop()         

@@ -35,6 +35,8 @@ class Verify:
         thread_verify = threading.Thread(target=self.Verify)
         thread_verify.start()
 
+        # self.Verify()
+
     def Verify(self):
         
         try:
@@ -112,14 +114,15 @@ class Verify:
             for categ in values:
                 cursor.execute("INSERT INTO Category(CategoryName) VALUES (?)", (categ,))
 
-            # Criar tabela UnMedida
-            cursor.execute("""CREATE TABLE UnMedida (
-                        UnMedidaID INTEGER PRIMARY KEY,
-                        UnMedidaName CHAR(4) NOT NULL
+            # Criar tabela UnitOfMeasure
+            cursor.execute("""CREATE TABLE UnitOfMeasure (
+                        UnitOfMeasureID INTEGER PRIMARY KEY,
+                        UnitOfMeasureName CHAR(4) NOT NULL
             )""")
 
-            # Inserir Unidades de medida na tabela UnMedida
-            values = ["m",
+            # Inserir Unidades de medida na tabela UnitOfMeasure
+            values = ["un",
+                    "m",
                     "cm",
                     "mm",
                     "m2",
@@ -137,7 +140,7 @@ class Verify:
                     "Sc",
                     "Kit"]
             for medida in values:
-                cursor.execute("INSERT INTO UnMedida(UnMedidaName) VALUES (?)", (medida,))
+                cursor.execute("INSERT INTO UnitOfMeasure(UnitOfMeasureName) VALUES (?)", (medida,))
 
             # Criar tabela Estoque
             cursor.execute("""CREATE TABLE Estoque (
@@ -158,7 +161,7 @@ class Verify:
                         Obra INT NOT NULL, 
                         FOREIGN KEY (ProductStatus) REFERENCES Status(StatusID),
                         FOREIGN KEY (Category) REFERENCES Category(CategoryID),
-                        FOREIGN KEY (UnitOfMeasure) REFERENCES UnMedida(UnMedidaID),
+                        FOREIGN KEY (UnitOfMeasure) REFERENCES UnitOfMeasure(UnitOfMeasureID),
                         FOREIGN KEY (Obra) REFERENCES Obra(ObraID)
             )""")
 
@@ -180,7 +183,8 @@ class Verify:
                         StockQuantity FLOAT NOT NULL,
                         Patrimony INT NOT NULL,
                         Category VARCHAR(255) NOT NULL,
-                        Supplier VARCHAR(255) NOT NULL,
+                        SupplierCNPJ INT(14) NOT NULL,
+                        SupplierName VARCHAR(255) NOT NULL,
                         ExpirationDate DATE,
                         ProductStatus INT NOT NULL,
                         LastUpdate TIMESTAMP NOT NULL,
@@ -193,7 +197,7 @@ class Verify:
                         nNotaFiscal INT NOT NULL,
                         dtEmissao DATE NOT NULL,
                         hrEmissao TIME NOT NULL,
-                        SupplierCNPJ INT NOT NULL,
+                        SupplierCNPJ INT(14) NOT NULL,
                         SupplierName VARCHAR(255) NOT NULL,
                         LastUpdate TIMESTAMP NOT NULL
             )""")
