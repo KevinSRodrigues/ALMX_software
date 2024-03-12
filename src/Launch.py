@@ -72,8 +72,7 @@ class Verify:
             )""")
 
             # Inserir as Obra na tabela Obra
-            for obra in OBRAS:
-                cursor.execute("INSERT INTO Obra (ObraName) VALUES (?)", (obra,))
+            cursor.executemany("INSERT INTO Obra (ObraName) VALUES (?)", OBRAS)
 
             # Criar tabela Status
             cursor.execute("""CREATE TABLE Status (
@@ -82,15 +81,14 @@ class Verify:
             )""")
 
             # Inserir Status na tabela Status
-            values = ["Em Estoque",
-                    "Em Trânsito",
-                    "Em Manutenção/Reparo",
-                    "Fora de estoque",
-                    "Aguardando conferência",
-                    "Alugado",
-                    "Emprestado"]   
-            for status in values:
-                cursor.execute("INSERT INTO Status(StatusName) VALUES (?)", (status,))
+            values = [("Em Estoque",),
+                    ("Em Trânsito",),
+                    ("Em Manutenção/Reparo",),
+                    ("Fora de estoque",),
+                    ("Aguardando conferência",),
+                    ("Alugado",),
+                    ("Emprestado",)]   
+            cursor.executemany("INSERT INTO Status(StatusName) VALUES (?)", values)
 
             # Criar tabela Category
             cursor.execute("""CREATE TABLE Category (
@@ -99,20 +97,19 @@ class Verify:
             )""")
 
             # Inserir Category na tabela Category
-            values = ["Hidráulica",
-                    "Elétrica",
-                    "Ferramental",
-                    "Acabamento",
-                    "Pintura",
-                    "Epi",
-                    "Uso-consumo",
-                    "Informática",
-                    "Escritório",
-                    "Ar-condicionado",
-                    "Não-provisionado",
-                    "Terceirizado"]
-            for categ in values:
-                cursor.execute("INSERT INTO Category(CategoryName) VALUES (?)", (categ,))
+            values = [("Hidráulica",),
+                    ("Elétrica",),
+                    ("Ferramental",),
+                    ("Acabamento",),
+                    ("Pintura",),
+                    ("Epi",),
+                    ("Uso-consumo",),
+                    ("Informática",),
+                    ("Escritório",),
+                    ("Ar-condicionado",),
+                    ("Não-provisionado",),
+                    ("Terceirizado",)]
+            cursor.executemany("INSERT INTO Category(CategoryName) VALUES (?)", values)
 
             # Criar tabela UnitOfMeasure
             cursor.execute("""CREATE TABLE UnitOfMeasure (
@@ -121,26 +118,26 @@ class Verify:
             )""")
 
             # Inserir Unidades de medida na tabela UnitOfMeasure
-            values = ["un",
-                    "m",
-                    "cm",
-                    "mm",
-                    "m2",
-                    "m3",
-                    "L",
-                    "kg",
-                    "gr",
-                    "Ton",
-                    "A",
-                    "V",
-                    "kW",
-                    "W",
-                    "Par",
-                    "Kit",
-                    "Sc",
-                    "Kit"]
-            for medida in values:
-                cursor.execute("INSERT INTO UnitOfMeasure(UnitOfMeasureName) VALUES (?)", (medida,))
+            values = [("un",),
+                    ("m",),
+                    ("cm",),
+                    ("mm",),
+                    ("m2",),
+                    ("m3",),
+                    ("rol",),
+                    ("L",),
+                    ("kg",),
+                    ("gr",),
+                    ("Ton",),
+                    ("A",),
+                    ("V",),
+                    ("kW",),
+                    ("W",),
+                    ("Par",),
+                    ("Kit",),
+                    ("Sc",),
+                    ("Kit",)]
+            cursor.executemany("INSERT INTO UnitOfMeasure(UnitOfMeasureName) VALUES (?)", values)
 
             # Criar tabela Estoque
             cursor.execute("""CREATE TABLE Estoque (

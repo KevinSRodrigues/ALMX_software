@@ -96,7 +96,7 @@ class Database:
 
                 for widget, value in widgetText.items():
 
-                    if value.get(1.0, index2=tk.END) == "":
+                    if value.get(1.0, index2=tk.END) == "" or value.get(1.0, index2=tk.END) == "\n":
                         listArgs_dict[widget] = None
 
                     else:
@@ -112,7 +112,7 @@ class Database:
                     else:
                         listArgs_dict[widget] = value.cget("text")
 
-        # Database.Inserção_default(self, table=tabela, listArgs=listArgs_dict)
+        Database.Inserção_default(self, table=tabela, listArgs=listArgs_dict)
 
     def Consulta_default(self, arg):
 
@@ -139,11 +139,19 @@ class Database:
             conn = sqlite3.connect(CONSTANTS.CONN_DB)
             cursor = conn.cursor()
 
-            listArgs.keys()
+            stringFields = ""
+            for field in listArgs.keys():
+                stringFields += f"{field}, "
 
-            lista = list(listArgs.items())
+            stringFields = stringFields.rstrip(", ")
 
-            cursor.execute(f"""INSERT INTO {table} ({stringFields}) VALUES ()""")
+            stringValues = ""
+            for value in listArgs.values():
+                stringValues += f"{value}, "
+
+            stringValues = stringValues.rstrip(", ")
+
+            cursor.execute(f"""INSERT INTO {table} ({stringFields}) VALUES ({stringValues})""")
             conn.commit()
             messagebox.showinfo("Sucesso", f"{listArgs["ProductName"]} cadastrado com sucesso!")
 

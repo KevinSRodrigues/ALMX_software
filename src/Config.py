@@ -3,12 +3,12 @@ from screeninfo import get_monitors
 NAME_APP = "CiviStock"
 
 VERSION = "1.0.0"
-OBRAS = ["AEBES-PRONTO-SOCORRO",
-        "SANTA-CASA-EXPANSÃO",
-        "VISTA-SUL",
-        "VISTA-DA-MONTANHA",
-        "AEBES-UNACON",
-        "EMESCAM"]
+OBRAS = [("AEBES-PRONTO-SOCORRO",),
+        ("SANTA-CASA-EXPANSÃO",),
+        ("VISTA-SUL",),
+        ("VISTA-DA-MONTANHA",),
+        ("AEBES-UNACON",),
+        ("EMESCAM",)]
 
 # Config conexão com o db
 class CONSTANTS:
